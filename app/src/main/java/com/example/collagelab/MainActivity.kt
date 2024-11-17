@@ -35,8 +35,6 @@ class MainActivity : AppCompatActivity() {
 
     // generated before picture is taken
     private var newPhotoPath: String? = null
-    // access picture is one is taken
-    private var visibleImagePath: String? = null
 
     // access image file paths here
     private var photoPaths: ArrayList<String?> = arrayListOf(null, null, null, null)
@@ -104,6 +102,7 @@ class MainActivity : AppCompatActivity() {
             // perform the necessary operation
             imageButtons.zip(photoPaths) { imageButton, photoPath ->
                 photoPath?.let {  // ad-hoc null check; if path isn't null, load img
+                    Log.d(TAG, "Loading $photoPath...")
                     loadImage(imageButton, photoPath)
                 }
             }
@@ -113,6 +112,9 @@ class MainActivity : AppCompatActivity() {
     private fun takePicture() {
         val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val (photoFile, photoFilePath) = createImageFile()
+        Log.d(TAG, "Image file created at ${photoFile?.absolutePath}")
+        // why is the camera Intent still working but newPhotoPath is always null when it gets to handleImage???
+        // no logging statements here get executed either!
         if (photoFile != null) {
             newPhotoPath = photoFilePath
             val photoUri = FileProvider.getUriForFile(
@@ -132,7 +134,7 @@ class MainActivity : AppCompatActivity() {
             val dateTime = SimpleDateFormat("yyyyMMdd__HHmmss").format(Date())
             val imageFilename = "COLLAGE_$dateTime"
             val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val file = File.createTempFile(imageFilename, ".jpg", storageDir)
+            val file = File(storageDir, "$imageFilename.jpg")
             // "to" keyword used for Pairs
             file to file.absolutePath
         } catch (ex: IOException) {
